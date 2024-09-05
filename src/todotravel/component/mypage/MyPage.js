@@ -19,6 +19,7 @@ import { SlArrowRight } from "react-icons/sl";
 import { DiAptana } from "react-icons/di";
 import { HiOutlinePencilSquare } from "react-icons/hi2";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { GoPerson } from "react-icons/go";
 
 import styles from "./MyPage.module.css";
 import gridStyles from "../plan/TripGrid.module.css";
@@ -108,8 +109,6 @@ function MyPage() {
         setNewInfo(response.data.info || "");
         setError(null);
         setIsFollowing(response.data.following);
-
-        console.log(response);
 
         const loggedInUserId = localStorage.getItem("userId");
         const isOwn = loggedInUserId === response.data.userId.toString();
@@ -351,7 +350,6 @@ function MyPage() {
         default:
           throw new Error("Invalid view type");
       }
-      console.log(response.data);
       setAllFullTripList(response.data);
       setDisplayedFullTripList(response.data.slice(0, plansPerPage));
       setHasMoreFullList(response.data.length > plansPerPage);
@@ -363,10 +361,13 @@ function MyPage() {
   };
 
   // 여행, 좋아요, 북마크 더보기 제어
-  const handleSeeMore = useCallback((type) => {
-    if (!profileData) return;
-    setSearchParams({ view: type });
-  }, [profileData, setSearchParams]);
+  const handleSeeMore = useCallback(
+    (type) => {
+      if (!profileData) return;
+      setSearchParams({ view: type });
+    },
+    [profileData, setSearchParams]
+  );
 
   // 댓글 더보기 제어
   const handleSeeMoreComments = useCallback(() => {
@@ -468,6 +469,12 @@ function MyPage() {
                   <span className={gridStyles.likes}>
                     <FaRegHeart /> {trip.likeNumber}
                   </span>
+                  {!(trip.participantsCount === null) && (
+                    <span className={gridStyles.participants}>
+                      <GoPerson className={gridStyles.participant} />{" "}
+                      {trip.planUserCount}/{trip.participantsCount}
+                    </span>
+                  )}
                 </div>
                 <span className={gridStyles.planUserNickname}>
                   {trip.planUserNickname}님의 여행 일정
@@ -492,14 +499,18 @@ function MyPage() {
     <div className={styles.tripSection}>
       <div className={styles.sectionTitle}>
         <h2>
-          {profileData.nickname}님의{" "}
-          {currentView === "my-trips"
-            ? "모든 여행"
-            : currentView === "my-recruitment"
-            ? "모집 중인 여행"
-            : currentView === "bookmarked"
-            ? "북마크한 여행"
-            : "좋아요한 여행"}
+          {currentView === "my-recruitment" ? (
+            "모집 중인 여행"
+          ) : (
+            <>
+              {profileData.nickname}님의{" "}
+              {currentView === "my-trips"
+                ? "모든 여행"
+                : currentView === "bookmarked"
+                ? "북마크한 여행"
+                : "좋아요한 여행"}
+            </>
+          )}
         </h2>
         <span onClick={() => setSearchParams({})}>뒤로 가기</span>
       </div>
@@ -535,6 +546,12 @@ function MyPage() {
                   <span className={gridStyles.likes}>
                     <FaRegHeart /> {trip.likeNumber}
                   </span>
+                  {!(trip.participantsCount === null) && (
+                    <span className={gridStyles.participants}>
+                      <GoPerson className={gridStyles.participant} />{" "}
+                      {trip.planUserCount}/{trip.participantsCount}
+                    </span>
+                  )}
                 </div>
                 <span className={gridStyles.planUserNickname}>
                   {trip.planUserNickname}님의 여행 일정
@@ -575,7 +592,7 @@ function MyPage() {
             >
               <img
                 src={comment.planThumbnailUrl || defaultThumbnail}
-                alt="Trip thumbnail"
+                alt='Trip thumbnail'
                 className={styles.commentImage}
               />
               <div className={styles.commentContent}>
@@ -614,7 +631,7 @@ function MyPage() {
             >
               <img
                 src={comment.planThumbnailUrl || defaultThumbnail}
-                alt="Trip thumbnail"
+                alt='Trip thumbnail'
                 className={styles.commentImage}
               />
               <div className={styles.commentContent}>
@@ -646,7 +663,7 @@ function MyPage() {
         >
           <img
             src={profileData.profileImageUrl || profileImage}
-            alt="Profile"
+            alt='Profile'
             className={styles.profileImage}
           />
           {isOwnProfile && (
@@ -656,11 +673,11 @@ function MyPage() {
           )}
         </div>
         <input
-          type="file"
+          type='file'
           ref={fileInputRef}
           onChange={handleFileChange}
           style={{ display: "none" }}
-          accept="image/jpeg,image/jpg,image/png,image/gif"
+          accept='image/jpeg,image/jpg,image/png,image/gif'
         />
         <div className={styles.profileContent}>
           <div className={styles.profileSection}>
@@ -765,7 +782,7 @@ function MyPage() {
           {isOwnProfile && (
             <>
               {renderTripSection(
-                `${profileData.nickname}님이 모집 중인 여행`,
+                "모집 중인 여행",
                 profileData.recruitingPlans,
                 "모집 중인 여행이 없습니다.",
                 "my-recruitment"

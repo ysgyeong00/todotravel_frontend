@@ -1,4 +1,3 @@
-import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./todotravel/context/AuthContext";
 import styles from "./App.module.css";
@@ -23,17 +22,15 @@ import PlanCreate from "./todotravel/component/plan/PlanCreate";
 import PlanPage from "./todotravel/component/plan/PlanPage";
 import PlanModify from "./todotravel/component/plan/PlanModify";
 
-import MainPlanList from "./todotravel/component/plan/MainPlanList";
 import PlanList from "./todotravel/component/plan/PlanList";
+import MainPlanList from "./todotravel/component/plan/MainPlanList";
 import PlanDetails from "./todotravel/component/plan/PlanDetails";
 import ChatContainer from "./todotravel/component/chat/ChatContainer";
 
 import FloatingButton from "./todotravel/component/chat/FloatingButton";
 
 import PlanSearch from "./todotravel/component/plan/PlanSearch";
-import PlanLayout from "./todotravel/component/Layout/PlanLayout";
-
-//!!!!!!!!!!!!!!!! url은 노출되는 만큼 간결하고 직관적으로 지정하기!!!!!!!!!!!!!!!!
+import RecruitmentList from "./todotravel/component/plan/RecruitmentList";
 
 function App() {
   return (
@@ -98,18 +95,18 @@ function App() {
             }
           />
           <Route
-            path='/'
-            element={
-              <MainLayout>
-                <MainPlanList />
-              </MainLayout>
-            }
-          />
-          <Route
             path='/plan-list'
             element={
               <MainLayout>
                 <PlanList />
+              </MainLayout>
+            }
+          />
+          <Route
+            path='/'
+            element={
+              <MainLayout>
+                <MainPlanList />
               </MainLayout>
             }
           />
@@ -126,6 +123,14 @@ function App() {
             element={
               <MainLayout>
                 <PlanSearch />
+              </MainLayout>
+            }
+          />
+          <Route
+            path='/plan/recruitment'
+            element={
+              <MainLayout>
+                <RecruitmentList />
               </MainLayout>
             }
           />
@@ -154,21 +159,20 @@ function App() {
               </MainLayout>
             }
           />
-          {/* PlanLayout 사용해서 양쪽 여백 조금 줄이기 */}
           <Route
             path='/plan/:planId'
             element={
-              <PlanLayout>
+              <MainLayout>
                 <ProtectedRoute element={<PlanPage />} />
-              </PlanLayout>
+              </MainLayout>
             }
           />
           <Route
             path='/plan/:planId/modify'
             element={
-              <PlanLayout>
+              <MainLayout>
                 <ProtectedRoute element={<PlanModify />} />
-              </PlanLayout>
+              </MainLayout>
             }
           />
           <Route

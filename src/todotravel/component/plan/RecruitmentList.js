@@ -28,6 +28,7 @@ const RecruitmentList = () => {
   const planListRef = useRef(null);
   const observer = useRef(null);
   const isInitialLoad = useRef(true);
+  const [searchTrigger, setSearchTrigger] = useState(0);
 
   const loadPlans = useCallback(async () => {
     if (loading || !hasMore) return;
@@ -39,7 +40,6 @@ const RecruitmentList = () => {
       }
 
       let response;
-      console.log(startDate);
       if (!frontLocation) {
         response = await (startDate === null
           ? getRecentRecruitPlans(page)
@@ -47,24 +47,30 @@ const RecruitmentList = () => {
       } else if (!location) {
         response = await (startDate === null
           ? getRecentRecruitPlansByFrontLocation(page, frontLocation)
-          : getRecentRecruitPlansByFrontLocationAndStartDate(page, frontLocation, startDate));
+          : getRecentRecruitPlansByFrontLocationAndStartDate(
+              page,
+              frontLocation,
+              startDate
+            ));
       } else {
         response = await (startDate === null
           ? getRecentRecruitPlansByLocation(page, frontLocation, location)
-          : getRecentRecruitPlansByLocationAndStartDate(page, frontLocation, location, startDate));
+          : getRecentRecruitPlansByLocationAndStartDate(
+              page,
+              frontLocation,
+              location,
+              startDate
+            ));
       }
 
       const responseData = response.data;
       const newPlans = responseData.content;
 
-      setPlanList((prevPlans) => [...prevPlans, ...newPlans]);
+      setPlanList((prevPlans) =>
+        page === 0 ? newPlans : [...prevPlans, ...newPlans]
+      );
       setHasMore(newPlans.length === 12 && responseData.last);
       setPage((prevPage) => prevPage + 1);
-      
-      console.log('Response data:', responseData);
-      console.log('New plans:', newPlans);
-      console.log('Has more:', !responseData.last);
-
       isInitialLoad.current = false;
     } catch (error) {
       console.error("Error fetching plans:", error);
@@ -79,16 +85,14 @@ const RecruitmentList = () => {
     setPlanList([]);
     setPage(0);
     setHasMore(true);
+    setLoading(false);
     isInitialLoad.current = true;
-    loadPlans();
+    setSearchTrigger((prev) => prev + 1);
   };
 
   useEffect(() => {
-    // 초기 로드 시에만 최신순으로 데이터를 가져옵니다.
-    if (isInitialLoad.current) {
-      loadPlans();
-    }
-  }, []);
+    loadPlans();
+  }, [searchTrigger]);
 
   useEffect(() => {
     if (frontLocation) {
@@ -106,7 +110,7 @@ const RecruitmentList = () => {
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && hasMore) {
-          console.log('Loading more plans...');
+          console.log("Loading more plans...");
           loadPlans();
         }
       });
@@ -121,41 +125,64 @@ const RecruitmentList = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.filterContainer}>
-        <select
-          value={frontLocation}
-          onChange={(e) => setFrontLocation(e.target.value)}
-          className={styles.select}
-        >
-          <option value="">행정 구역 선택</option>
-          {Provinces.map((province) => (
-            <option key={province} value={province}>
-              {province}
-            </option>
-          ))}
-        </select>
-        <select
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          className={styles.select}
-          disabled={!frontLocation}
-        >
-          <option value="">지역 선택</option>
-          {availableCitys.map((city) => (
-            <option key={city} value={city}>
-              {city}
-            </option>
-          ))}
-        </select>
-        <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            className={styles.select}>
-        </input>
-        <button onClick={handleSearch} className={styles.searchButton}>
-          검색
-        </button>
+      <div className={styles.filterBox}>
+        <div className={styles.filterContainer}>
+          <div className={styles.filterItem}>
+            <label htmlFor='frontLocation' className={styles.filterLabel}>
+              행정 구역
+            </label>
+            <select
+              id='frontLocation'
+              value={frontLocation}
+              onChange={(e) => setFrontLocation(e.target.value)}
+              className={styles.select}
+            >
+              <option value=''>행정 구역 선택</option>
+              {Provinces.map((province) => (
+                <option key={province} value={province}>
+                  {province}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className={styles.filterItem}>
+            <label htmlFor='location' className={styles.filterLabel}>
+              도시
+            </label>
+            <select
+              id='location'
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className={styles.select}
+              disabled={!frontLocation}
+            >
+              <option value=''>지역 선택</option>
+              {availableCitys.map((city) => (
+                <option key={city} value={city}>
+                  {city}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className={styles.filterItem}>
+            <label htmlFor='startDate' className={styles.filterLabel}>
+              여행 시작 날짜
+            </label>
+            <input
+              id='startDate'
+              type='date'
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className={styles.select}
+            />
+          </div>
+          <button onClick={handleSearch} className={styles.searchButton}>
+            검색
+          </button>
+        </div>
+        <p className={styles.filterNote}>
+          ※ 필터링된 플랜은 아래에서 볼 수 있습니다.
+        </p>
       </div>
       <div className={gridStyles.tripGrid} ref={planListRef}>
         {planList.map((plan, index) => (
@@ -167,7 +194,7 @@ const RecruitmentList = () => {
           >
             <img
               src={plan.planThumbnailUrl || defaultThumbnail}
-              alt="travel"
+              alt='travel'
               className={gridStyles.tripImage}
             />
             <p className={gridStyles.location}>{plan.location}</p>
@@ -185,8 +212,9 @@ const RecruitmentList = () => {
                   <FaRegHeart /> {plan.likeNumber}
                 </span>
                 <span className={gridStyles.participants}>
-                    <GoPerson className={gridStyles.participant} /> {plan.planUserCount}/{plan.participantsCount}
-                  </span>
+                  <GoPerson className={gridStyles.participant} />{" "}
+                  {plan.planUserCount}/{plan.participantsCount}
+                </span>
               </div>
               <span className={gridStyles.planUserNickname}>
                 {plan.planUserNickname}님의 여행 일정

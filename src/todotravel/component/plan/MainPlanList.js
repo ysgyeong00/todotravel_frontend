@@ -7,6 +7,7 @@ import {
 } from "../../service/PlanService";
 import { FaRegBookmark, FaRegHeart } from "react-icons/fa";
 import { MdOutlineReadMore } from "react-icons/md";
+import { GoPerson } from "react-icons/go";
 import styles from "./MainPlanList.module.css";
 import gridStyles from "./TripGrid.module.css";
 import ScrollContainer from "react-indiana-drag-scroll";
@@ -34,7 +35,6 @@ const MainPlanList = () => {
       })
       .catch((e) => {
         console.log(e);
-        alert("플랜 목록을 불러올 수 없습니다.");
       });
   };
 
@@ -45,7 +45,6 @@ const MainPlanList = () => {
       })
       .catch((e) => {
         console.log(e);
-        alert("모집중인 플랜 목록을 불러올 수 없습니다.");
       });
   };
 
@@ -64,7 +63,11 @@ const MainPlanList = () => {
   };
 
   const handleReadMoreClick = () => {
-    navigate("/plans");
+    navigate("/plan-list");
+  };
+
+  const handleReadRecruitMoreClick = () => {
+    navigate("/plan/recruitment");
   };
 
   return (
@@ -100,7 +103,11 @@ const MainPlanList = () => {
               <div
                 key={plan.planId}
                 className={`${gridStyles.tripCard} ${styles.fadeIn}`}
-                style={{ animationDelay: `${index * 0.1}s` }}
+                style={{
+                  animationDelay: `${index * 0.1}s`,
+                  width: "220px",
+                  height: "400px",
+                }}
                 onClick={() => handlePlanClick(plan.planId)}
               >
                 <img
@@ -109,7 +116,7 @@ const MainPlanList = () => {
                       ? plan.planThumbnailUrl
                       : defaultThumbnail
                   }
-                  alt="travel"
+                  alt='travel'
                   className={gridStyles.tripImage}
                 />
                 <p className={gridStyles.location}>{plan.location}</p>
@@ -158,7 +165,11 @@ const MainPlanList = () => {
               <div
                 key={plan.planId}
                 className={`${gridStyles.tripCard} ${styles.fadeIn}`}
-                style={{ animationDelay: `${index * 0.1}s` }}
+                style={{
+                  animationDelay: `${index * 0.1}s`,
+                  width: "270px",
+                  height: "400px",
+                }}
                 onClick={() => handlePlanClick(plan.planId)}
               >
                 <img
@@ -167,7 +178,7 @@ const MainPlanList = () => {
                       ? plan.planThumbnailUrl
                       : defaultThumbnail
                   }
-                  alt="travel"
+                  alt='travel'
                   className={gridStyles.tripImage}
                 />
                 <p className={gridStyles.location}>{plan.location}</p>
@@ -184,6 +195,10 @@ const MainPlanList = () => {
                     <span className={gridStyles.likes}>
                       <FaRegHeart /> {plan.likeNumber}
                     </span>
+                    <span className={gridStyles.participants}>
+                      <GoPerson className={gridStyles.participant} />{" "}
+                      {plan.planUserCount}/{plan.participantsCount}
+                    </span>
                   </div>
                   <span className={gridStyles.planUserNickname}>
                     {plan.planUserNickname}님의 여행 일정
@@ -191,6 +206,12 @@ const MainPlanList = () => {
                 </div>
               </div>
             ))}
+            <div
+              className={styles.readMoreCard}
+              onClick={handleReadRecruitMoreClick}
+            >
+              <MdOutlineReadMore size={48} />
+            </div>
           </>
         ) : (
           <p className={gridStyles.emptyMessage}>모집중인 플랜이 없습니다.</p>

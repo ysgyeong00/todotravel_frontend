@@ -1,32 +1,14 @@
 import React, { useState, useEffect } from "react";
 import moment from "moment";
 import styles from "./Schedule.module.css";
-import ScheduleItem from "./ScheduleItem";
+import PlanDetailScheduleItem from "./PlanDetailScheduleItem";
 
-const ScheduleList = ({ scheduleList }) => {
+const PlanDetailScheduleList = ({ scheduleList }) => {
   const [schedules, setSchedules] = useState(scheduleList);
 
   useEffect(() => {
     setSchedules(scheduleList);
   }, [scheduleList]);
-
-  const handleEdit = (updatedItem) => {
-    setSchedules((prevSchedules) =>
-      prevSchedules.map((item) =>
-        item.scheduleId === updatedItem.scheduleId
-          ? { ...item, ...updatedItem }
-          : item
-      )
-    );
-  };
-
-  const handleDelete = (deletedScheduleId) => {
-    setSchedules((prevSchedules) =>
-      prevSchedules.filter(
-        (schedule) => schedule.scheduleId !== deletedScheduleId
-      )
-    );
-  };
 
   if (!schedules || schedules.length === 0) {
     return <div>일정이 없습니다.</div>;
@@ -47,13 +29,13 @@ const ScheduleList = ({ scheduleList }) => {
   }, {});
 
   return (
-    <div className={styles.scheduleList}>
+    <div className={styles.planScheduleList}>
       {Object.keys(groupedScheduleList).map((day) => (
         <div key={day} className={styles.scheduleGroup}>
           <h2>{day}일차</h2>
-          <div className={styles.scheduleItem}>
+          <div className={styles.planScheduleItem}>
             {groupedScheduleList[day].map((item) => (
-              <ScheduleItem
+              <PlanDetailScheduleItem
                 key={item.scheduleId}
                 scheduleId={item.scheduleId}
                 locationId={item.locationId}
@@ -63,10 +45,6 @@ const ScheduleList = ({ scheduleList }) => {
                 travelTime={item.travelTime}
                 vehicle={item.vehicle}
                 price={item.price}
-                onEdit={(updatedData) =>
-                  handleEdit({ scheduleId: item.scheduleId, ...updatedData })
-                }
-                onDelete={handleDelete}
               />
             ))}
           </div>
@@ -76,4 +54,4 @@ const ScheduleList = ({ scheduleList }) => {
   );
 };
 
-export default ScheduleList;
+export default PlanDetailScheduleList;
